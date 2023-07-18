@@ -3,19 +3,29 @@ package main
 import (
 	"fist-web-go/internal/db/postgres"
 	"fist-web-go/internal/repositories/healthchek"
-	webhandler "fist-web-go/internal/web-handler"
+	"fist-web-go/internal/webhandler"
 	"fmt"
+	"log"
 )
 
 func main() {
 	fmt.Println("starting")
-	repositories := makeRepositories()
+
+	db, err := makeDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	repositories, err := makeRepositories(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	webHandler, _ := webhandler.New(8080, repositories)
 	webHandler.Run()
 }
 
-func makeDatabase() {
-	postgres.New(postgres.Config{
+func makeDatabase() (*postgres.Database, error) {
+	return postgres.New(postgres.Config{
 		Database: "db1",
 		User:     "user",
 		Password: "hackme",
@@ -24,8 +34,8 @@ func makeDatabase() {
 	})
 }
 
-func makeRepositories() webhandler.Repositories {
+func makeRepositories(db *postgres.Database) (webhandler.Repositories, error) {
 	return webhandler.Repositories{
-		HealthCheker: healthchek.NewRepository(),
-	}
+		HealthCheker: healthchek.NewRepository(db),
+	}, nil
 }

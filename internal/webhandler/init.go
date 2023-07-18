@@ -29,6 +29,7 @@ func New(port int, repositories Repositories) (*WebHanler, error) {
 
 func (webHandler WebHanler) setRoute() error {
 	webHandler.app.Get("/health_chek/application", webHandler.handlerHealthChekApplication)
+	webHandler.app.Get("/health_chek/database", webHandler.handlerHealthChekDatabase)
 	return nil
 }
 
